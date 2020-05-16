@@ -2,6 +2,7 @@ package com.company;
 
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.*;
 
 public class Bucket {
 
@@ -80,12 +81,14 @@ public class Bucket {
         public void clear()
         {
             values.clear();
+
         }
 
         public TreeMap<Integer,String> copy()
         {
             TreeMap<Integer,String> temp= new TreeMap<Integer, String>();
-            values.putAll(temp);
+            temp.putAll(values);
+           // System.out.println(temp);
             return temp;
 
         }

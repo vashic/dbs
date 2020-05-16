@@ -14,6 +14,7 @@ public class Directory {
         for(int i=0;i<(1<<depth);i++)
         {
             buckets.add(new Bucket(depth,bucket_size));
+            //System.out.println(i);
         }
     }
 
@@ -29,11 +30,19 @@ public class Directory {
 
     public void grow()
     {
-        for (int i=0;i<1<<global_depth;i++)
+        /*for (int i=0;i<1<<global_depth;i++)
         {
             buckets.add(buckets.get(i));
-        }
+            //System.out.println(i);
+        }*/
         global_depth++;
+        int depth= buckets.get(0).depth;
+        int bucket_size= buckets.get(0).size;
+        for( int i = global_depth/2; i< global_depth;i++)
+        {
+            buckets.add(new Bucket(depth,bucket_size));
+        }
+
     }
 
     public void shrink()
@@ -52,21 +61,22 @@ public class Directory {
             buckets.remove(buckets.size()-1);
     }
 
-    public void insert(int key,String value,boolean reinserted)
+    public void insert(int key,String value)
     {
+
         int bucket_no= hash(key) ;
+        System.out.println(key+" "+bucket_no);
         int status= buckets.get(bucket_no).insert(key,value);
         if (status==1) {
-            if (!reinserted) {
-                System.out.println("inserted key" + key + "in buckt" + bucket_id(bucket_no));
-            } else {
-                System.out.println("moved key " + key + "to bucket" + bucket_id(bucket_no));
-            }
+
+            System.out.println("inserted key " + key + " in buckt " + bucket_id(bucket_no));
+
         }
         else if(status==0)
         {
+            System.out.println("split");
             split(bucket_no);
-            insert(key,value,reinserted);
+            insert(key,value);
 
         }
         else
@@ -79,20 +89,25 @@ public class Directory {
         int local_depth,pair_index,index_diff,dir_size,i;
         TreeMap<Integer,String > temp= new TreeMap<Integer, String>();
         local_depth= buckets.get(bucket_no).increaseDepth();
+        //System.out.println(local_depth);
         if(local_depth>global_depth)
             grow();
         pair_index=pairIndex(bucket_no,local_depth);
+
         buckets.add(pair_index,new Bucket(local_depth,bucket_size));
         temp=buckets.get(bucket_no).copy();
+        //System.out.println(temp);
         buckets.get(bucket_no).clear();
+       // System.out.println("after clear");buckets.get(bucket_no).display();
         index_diff=1<<local_depth;
         dir_size=1<<global_depth;
+        System.out.println(pair_index+ " " + index_diff + " " +dir_size);
         for(i=pair_index-index_diff;i>=0;i-=index_diff)
             buckets.add(i,buckets.get(pair_index));
         for(i=pair_index+index_diff;i<dir_size;i+=index_diff)
             buckets.add(i,buckets.get(pair_index));
         for (Map.Entry<Integer,String> e : temp.entrySet())
-            insert(e.getKey(),e.getValue(),true);
+            insert(e.getKey(),e.getValue());
 
     }
 
@@ -108,7 +123,7 @@ public class Directory {
         if(buckets.get(pair_index).getDepth() == local_depth)
         {
             buckets.get(pair_index).decreaseDepth();
-            buckets.get(bucket_no).clear();
+           // buckets.get(bucket_no).clear();
             buckets.set(bucket_no,buckets.get(pair_index));
             for (i=bucket_no-index_diff;i>=0;i-=index_diff)
                 buckets.set(i,buckets.get(pair_index));
@@ -137,13 +152,18 @@ public class Directory {
             s="0"+s;
             d--;
         }
-        return s;
+        String r="";
+        for(int i = s. length() - 1; i >= 0; i--) {
+            r = r + s. charAt(i); }
+    return r;
+
+
 
     }
 
 
 
-    public void remove(int key,int mode)
+    public void delete(int key,int mode)
     {
         int bucket_no = hash(key);
         if(buckets.get(bucket_no).remove(key)!=0)
@@ -173,7 +193,7 @@ public class Directory {
         System.out.println("Global depth : "+global_depth);
         for(i=0;i<buckets.size();i++)
         {
-            d = buckets.get(i).getDepth();
+           /* d = buckets.get(i).getDepth();
             s = bucket_id(i);
             if(duplicates || shown.contains(s))
             {
@@ -182,7 +202,8 @@ public class Directory {
                     System.out.println(" ");
                 System.out.println(s+ " => ");
                 buckets.get(i).display();
-            }
+            }*/
+            System.out.println(i );buckets.get(i).display();
         }
     }
 
